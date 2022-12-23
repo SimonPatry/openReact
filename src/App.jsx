@@ -28,14 +28,13 @@ const geojsonObject = mapConfig.geojsonObject;
 const geojsonObject2 = mapConfig.geojsonObject2;
 const markersLonLat = [mapConfig.kansasCityLonLat, mapConfig.blueSpringsLonLat];
 
-
 const App = () => {
   const [center, setCenter] = useState(mapConfig.center);
   const [zoom, setZoom] = useState(9);
   const [showLayer1, setShowLayer1] = useState(true);
   const [showLayer2, setShowLayer2] = useState(true);
   const [switchLayer, setSwitchLayer] = useState(true);
-  const [vectors, setVectors] = useState([geojsonObject, geojsonObject2]);
+  const [vectors, setVectors] = useState([]);
 
   console.log(vectors);
 return (

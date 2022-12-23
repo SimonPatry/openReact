@@ -17,7 +17,9 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
     let mapObject = new ol.Map(options);
     mapObject.setTarget(mapRef.current);
 
-    const newVector = () => {
+    const newVector = (pos) => {
+      const name = `vector${vectors.length}`;
+
       return {
         "type": "FeatureCollection",
         "features": [
@@ -25,7 +27,7 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
             "type": "Feature",
             "properties": {
               "kind": "county",
-              "name": "test",
+              "name": name,
               "state": "KS"
             },
             "geometry": {
@@ -33,10 +35,10 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
               "coordinates": [
                 [
                   [
-                    [-80, 31],
-                    [-85, 37],
-                    [-83, 34],
-                    [-88, 24],
+                    [pos[0] - 0.5, pos[1] - 0.5],
+                    [pos[0] + 0.5, pos[1] - 0.5],
+                    [pos[0] + 0.5, pos[1] + 0.5],
+                    [pos[0] - 0.5, pos[1] + 0.5]
                   ]
                 ]
               ]
@@ -46,15 +48,16 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
       };
     };
 
-    const handleMapClick = () => {
-      console.log();
+    const handleMapClick = (e) => {
+      
+      
       setVectors([
         ...vectors,
-        newVector()
+        newVector(e.coordinate)
       ])
     }
 
-    mapObject.on('click', handleMapClick)
+    mapObject.on('click', (e) => handleMapClick(e))
     
     setMap(mapObject);
     return () => mapObject.setTarget(undefined);
