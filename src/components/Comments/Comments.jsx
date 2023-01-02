@@ -2,16 +2,23 @@ import react, {useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import {Button, TextField} from '@mui/material';
-import "./comments.scss"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
-import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import "./comments.scss";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
-export default function CommentsDrawer(coms, setComments) {
+export default function CommentsDrawer({ comments, updateComments }) {
     
-    const comments = coms.comments;
     const [state, setState] = useState(false);
     const [edit, setEdit] = useState(false);
+    const [newComment, setNewComment] = useState({
+            title: 'title',
+            content: "lorem ipsum",
+            author: 'Jhon Doe',
+            selected: false,
+            edit: false,
+    });
 
     useEffect(() => {
         setEdit(false);
@@ -19,10 +26,34 @@ export default function CommentsDrawer(coms, setComments) {
 
     const handleChange = (e, key) => {
         const tmpArr = [...comments];
-        tmpArr[key].title = e.target.title;
-        tmpArr[key].content = e.target.content;
-        setComments.setComments([...tmpArr]);
-      }
+        tmpArr[key] = {
+            ...tmpArr[key],
+            [e.target.id]: e.target.value
+        }
+        updateComments([...tmpArr]);
+    }
+
+    const handleTitleChange = (e) => {
+        setNewComment({
+            ...newComment,
+            title: e.target.value
+        })
+    }
+
+    const handleContentChange = (e) => {
+        setNewComment({
+            ...newComment,
+            content: e.target.value
+        })
+    }
+
+    const addComment = () => {
+        updateComments([
+            ...comments,
+            newComment
+        ]);
+        setEdit(true);
+    }
 
     return (
         <>
@@ -40,7 +71,7 @@ export default function CommentsDrawer(coms, setComments) {
                 }}
             >
                 <Box                
-                    sx={{ width: 300 }}
+                    sx={{ width: "40vw", height: "100vh"}}
                     role="presentation"
                     className='commentsBox'
                 >
@@ -51,50 +82,82 @@ export default function CommentsDrawer(coms, setComments) {
                     >
                         {">"}
                     </Button>
-                    <div className='comments'>
-                        {comments.map((comment, key) => {
-                            return (comment.edit == false ?
-                            <div key={key}
-                                className={`${comment.selected ? 'selectedComment' : 'comment'}`}
-                                onClick={() => {
-                                comment.selected = comment.selected ? false : true;
-                                setEdit(true);
-                            }}
-                            >
-                                <p>{comment.title}</p>
-                                <p>{comment.content}</p>
-                                <Button
+                    <div>
+                        <div className='comments'>
+                            <h2>Commentaires</h2>
+                            {comments.map((comment, key) => {
+                                return (comment.edit == false ?
+                                <div key={key}
+                                    className={`commentBlock ${comment.selected ? 'selectedComment' : 'comment'}`}
                                     onClick={() => {
-                                        comment.edit = true;
-                                        setEdit(true);
-                                    }}
+                                    comment.selected = comment.selected ? false : true;
+                                    setEdit(true);
+                                }}
                                 >
-                                    <FontAwesomeIcon icon={faPenToSquare} />
-                                </Button>
-                            </div>
-                            :
-                            <div key={key}>
+                                    <div className='(commentContent'>
+                                        <p>{comment.title}</p>
+                                        <p>{comment.content}</p>
+                                    </div>
+                                    <Button
+                                        onClick={() => {
+                                            comment.edit = true;
+                                            setEdit(true);
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faPenToSquare} />
+                                    </Button>
+                                </div>
+                                :
+                                <div key={key}>
+                                    <div className='commentContent'>
+                                        <TextField
+                                            id="title"
+                                            label="title"
+                                            onChange={(e) => handleChange(e, key)}
+                                            value={comment.title}
+                                        />
+                                        <TextField
+                                            id="content"
+                                            label="content"
+                                            onChange={(e) => handleChange(e, key)}
+                                            value={comment.content}
+                                        />
+                                    </div>
+                                    <Button
+                                        onClick={() => {
+                                            comment.edit = false;
+                                            setEdit(true);
+                                        }}
+                                    >
+                                        <FontAwesomeIcon icon={faFloppyDisk} />
+                                    </Button>
+                                </div>);
+                            })}
+                        </div>
+                        <div className='addComment'>
+                            <h2>Ajouter un commentaire:</h2>
+                            <div className='commentContent'>
                                 <TextField
                                     id="title"
                                     label="title"
-                                    onChange={(e) => handleChange(e, key)}
+                                    onChange={(e) => handleTitleChange(e)}
                                 />
                                 <TextField
                                     id="content"
                                     label="content"
-                                    onChange={(e) => handleChange(e, key)}
+                                    onChange={(e) => handleContentChange(e)}
                                 />
-                                <Button
-                                    onClick={() => {
-                                        comment.edit = false;
-                                        setEdit(true);
-                                    }}
-                                >
-                                    <FontAwesomeIcon icon={faFloppyDisk} />
-                                </Button>
-                            </div>);
-                        })}
+                            </div>
+                            <Button
+                                onClick={(e) => {
+                                    addComment(e);
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faPaperPlane} />
+                            </Button>
+                        </div>
                     </div>
+                    
                 </Box>
             </Drawer>
         </>

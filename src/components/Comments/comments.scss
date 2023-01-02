@@ -14,14 +14,29 @@
     height:100vh;
 }
 
+// each comment has a comment block and comment or selectedComment depending on selected or not
+
+.commentBlock {
+    width: 30vw;
+    display: flex;
+    justify-content: space-between;
+    border-radius: 1em;
+    margin: 1em;
+    padding: 1em;
+}
+
 .comment {
-    background-color: lightgrey;
+    background-color: rgb(211, 211, 211);
 }
 
 .comment:hover {
-    background-color: green;
+    background-color: rgba(75, 75, 75, 0.2);
 }
 
 .selectedComment {
-    background-color: rgba(34, 34, 34, 0.5);
+    background-color: rgba(60, 60, 60, 0.5);
+}
+
+.commentContent {
+    padding-left: 2vw;
 }

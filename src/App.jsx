@@ -37,9 +37,6 @@ const App = () => {
   const [showLayer2, setShowLayer2] = useState(true);
   const [switchLayer, setSwitchLayer] = useState(true);
   const [vectors, setVectors] = useState([]);
-
-  console.log(vectors);
-
   const [state, setState] = useState(false);
   const [comments, setComments] = useState([
     {
@@ -61,7 +58,7 @@ const App = () => {
   return (
     <div className="container">
       <div className='commentsBlock'>
-        <CommentsDrawer comments={comments} setComments={setComments} />
+        <CommentsDrawer comments={comments} updateComments={setComments} />
       </div>
       <div className='mapBlock'>
         <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
