@@ -41,71 +41,87 @@ const App = () => {
   console.log(vectors);
 
   const [state, setState] = useState(false);
+  const [comments, setComments] = useState([
+    {
+        title: 'title',
+        content: "lorem ipsum",
+        author: 'Jhon Doe',
+        selected: false,
+        edit: false,
+    },
+    {
+        title: 'title',
+        content: "lorem ipsum",
+        author: 'Jhon Doe',
+        selected: false,
+        edit: false,
+    }
+  ]);
 
-return (
-  <div className="container">
-    <div className='commentsBlock'>
-      <CommentsDrawer />
-    </div>
-    <div className='mapBlock'>
-      <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
-        <Layers>
-          { switchLayer && 
-              <TileLayer
-              source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
-              )}
-              zIndex={0}
-            />
-          }
-          { !switchLayer && 
-              <TileLayer
-              source={osm()}
-              zIndex={0}
-            />
-          }
-          { showLayer1 && (
-            <VectorLayer
-              source={vector({ features: new GeoJSON().readFeatures(geojsonObject, { featureProjection: get('EPSG:3857') }) })}
-              style={styles.MultiPolygon}
-            />
-          )}
-          { vectors.length >= 3 &&
-            <VectorLayer 
-              source={vector({ features: new GeoJSON().readFeatures(vectors[2], { featureProjection: get('EPSG:3857') }) })}
+  return (
+    <div className="container">
+      <div className='commentsBlock'>
+        <CommentsDrawer comments={comments} setComments={setComments} />
+      </div>
+      <div className='mapBlock'>
+        <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
+          <Layers>
+            { switchLayer && 
+                <TileLayer
+                source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
+                )}
+                zIndex={0}
+              />
+            }
+            { !switchLayer && 
+                <TileLayer
+                source={osm()}
+                zIndex={0}
+              />
+            }
+            { showLayer1 && (
+              <VectorLayer
+                source={vector({ features: new GeoJSON().readFeatures(geojsonObject, { featureProjection: get('EPSG:3857') }) })}
                 style={styles.MultiPolygon}
-            />
-          }
-          {showLayer2 && (
-            
-            <VectorLayer
-              source={vector({ features: new GeoJSON().readFeatures(geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
-              style={styles.MultiPolygon}
-            />
-          )}
-        </Layers>
-        <Controls>
-          <FullScreenControls />
-        </Controls>
-      </Map>
-    </div>
-    <div>
-      <input
-        type="checkbox"
-        checked={showLayer1}
-        onChange={event => setShowLayer1(event.target.checked)}
-      /> Johnson County
-    </div>
-    <div>
-      <input
-        type="checkbox"
-        checked={showLayer2}
-        onChange={event => setShowLayer2(event.target.checked)}
-      /> Wyandotte County</div>
+              />
+            )}
+            { vectors.length >= 3 &&
+              <VectorLayer 
+                source={vector({ features: new GeoJSON().readFeatures(vectors[2], { featureProjection: get('EPSG:3857') }) })}
+                  style={styles.MultiPolygon}
+              />
+            }
+            {showLayer2 && (
+              
+              <VectorLayer
+                source={vector({ features: new GeoJSON().readFeatures(geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
+                style={styles.MultiPolygon}
+              />
+            )}
+          </Layers>
+          <Controls>
+            <FullScreenControls />
+          </Controls>
+        </Map>
+      </div>
       <div>
         <input
           type="checkbox"
-          checked={switchLayer}
-          onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? "Normal vue" : " Thermal vue"}
+          checked={showLayer1}
+          onChange={event => setShowLayer1(event.target.checked)}
+        /> Johnson County
+      </div>
+      <div>
+        <input
+          type="checkbox"
+          checked={showLayer2}
+          onChange={event => setShowLayer2(event.target.checked)}
+        /> Wyandotte County</div>
+        <div>
+          <input
+            type="checkbox"
+            checked={switchLayer}
+            onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? "Normal vue" : " Thermal vue"}
       </div>
       {
         vectors.length >= 3 &&

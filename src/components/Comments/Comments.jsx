@@ -5,26 +5,12 @@ import {Button, TextField} from '@mui/material';
 import "./comments.scss"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
 
-export default function CommentsDrawer() {
-
+export default function CommentsDrawer(coms, setComments) {
+    
+    const comments = coms.comments;
     const [state, setState] = useState(false);
-    const [comments, setComments] = useState([
-        {
-            title: 'title',
-            content: "lorem ipsum",
-            author: 'Jhon Doe',
-            selected: false,
-            edit: false,
-        },
-        {
-            title: 'title',
-            content: "lorem ipsum",
-            author: 'Jhon Doe',
-            selected: false,
-            edit: false,
-        }
-    ]);
     const [edit, setEdit] = useState(false);
 
     useEffect(() => {
@@ -35,7 +21,7 @@ export default function CommentsDrawer() {
         const tmpArr = [...comments];
         tmpArr[key].title = e.target.title;
         tmpArr[key].content = e.target.content;
-        setComments([...tmpArr]);
+        setComments.setComments([...tmpArr]);
       }
 
     return (
@@ -77,7 +63,12 @@ export default function CommentsDrawer() {
                             >
                                 <p>{comment.title}</p>
                                 <p>{comment.content}</p>
-                                <Button>
+                                <Button
+                                    onClick={() => {
+                                        comment.edit = true;
+                                        setEdit(true);
+                                    }}
+                                >
                                     <FontAwesomeIcon icon={faPenToSquare} />
                                 </Button>
                             </div>
@@ -86,11 +77,21 @@ export default function CommentsDrawer() {
                                 <TextField
                                     id="title"
                                     label="title"
-                                    onChange={(e) => handleChange(e, key)} />
+                                    onChange={(e) => handleChange(e, key)}
+                                />
                                 <TextField
                                     id="content"
                                     label="content"
-                                    onChange={(e) => handleChange(e, key)} />
+                                    onChange={(e) => handleChange(e, key)}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        comment.edit = false;
+                                        setEdit(true);
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faFloppyDisk} />
+                                </Button>
                             </div>);
                         })}
                     </div>
