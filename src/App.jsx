@@ -11,6 +11,8 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Controls from "./components/Controls/Controls";
 import FullScreenControls from "./components/Controls/FullScreenControls"
 import mapConfig from "./config.json";
+import CommentsDrawer from './components/Comments/Comments';
+import Button from '@mui/material/Button';
 
 let styles = {
   'MultiPolygon': new Style({
@@ -37,47 +39,55 @@ const App = () => {
   const [vectors, setVectors] = useState([]);
 
   console.log(vectors);
+
+  const [state, setState] = useState(false);
+
 return (
-  <div>
-    <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
-      <Layers>
-        { switchLayer && 
-            <TileLayer
-            source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
-            )}
-            zIndex={0}
-          />
-        }
-        { !switchLayer && 
-            <TileLayer
-            source={osm()}
-            zIndex={0}
-          />
-        }
-        { showLayer1 && (
-          <VectorLayer
-            source={vector({ features: new GeoJSON().readFeatures(geojsonObject, { featureProjection: get('EPSG:3857') }) })}
-            style={styles.MultiPolygon}
-          />
-        )}
-        { vectors.length >= 3 &&
-          <VectorLayer 
-            source={vector({ features: new GeoJSON().readFeatures(vectors[2], { featureProjection: get('EPSG:3857') }) })}
+  <div className="container">
+    <div className='commentsBlock'>
+      <CommentsDrawer />
+    </div>
+    <div className='mapBlock'>
+      <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
+        <Layers>
+          { switchLayer && 
+              <TileLayer
+              source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
+              )}
+              zIndex={0}
+            />
+          }
+          { !switchLayer && 
+              <TileLayer
+              source={osm()}
+              zIndex={0}
+            />
+          }
+          { showLayer1 && (
+            <VectorLayer
+              source={vector({ features: new GeoJSON().readFeatures(geojsonObject, { featureProjection: get('EPSG:3857') }) })}
               style={styles.MultiPolygon}
-          />
-        }
-        {showLayer2 && (
-          
-          <VectorLayer
-            source={vector({ features: new          GeoJSON().readFeatures(geojsonObject2, { featureProjection:               get('EPSG:3857') }) })}
-            style={styles.MultiPolygon}
-          />
-        )}
-      </Layers>
-      <Controls>
-        <FullScreenControls />
-      </Controls>
-    </Map>
+            />
+          )}
+          { vectors.length >= 3 &&
+            <VectorLayer 
+              source={vector({ features: new GeoJSON().readFeatures(vectors[2], { featureProjection: get('EPSG:3857') }) })}
+                style={styles.MultiPolygon}
+            />
+          }
+          {showLayer2 && (
+            
+            <VectorLayer
+              source={vector({ features: new GeoJSON().readFeatures(geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
+              style={styles.MultiPolygon}
+            />
+          )}
+        </Layers>
+        <Controls>
+          <FullScreenControls />
+        </Controls>
+      </Map>
+    </div>
     <div>
       <input
         type="checkbox"
@@ -95,7 +105,7 @@ return (
         <input
           type="checkbox"
           checked={switchLayer}
-          onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? " First Layer" : " Second Layer"}
+          onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? "Normal vue" : " Thermal vue"}
       </div>
       {
         vectors.length >= 3 &&

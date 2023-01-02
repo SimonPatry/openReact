@@ -1,0 +1,27 @@
+.toggleBtn {
+    width: 4vw;
+    height:100vh;
+    border: 2px solid black;
+}
+
+.commentsBox {
+    display: flex;
+    background-color: silver;
+}
+
+.toggleBtnIn.Mui-selected {
+    width: 2em;
+    height:100vh;
+}
+
+.comment {
+    background-color: lightgrey;
+}
+
+.comment:hover {
+    background-color: green;
+}
+
+.selectedComment {
+    background-color: rgba(34, 34, 34, 0.5);
+}

@@ -61,7 +61,7 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
     
     setMap(mapObject);
     return () => mapObject.setTarget(undefined);
-  }, []);
+  }, [zoom, center, setVectors, vectors]);
   // zoom change handler
   useEffect(() => {
     if (!map) return;
