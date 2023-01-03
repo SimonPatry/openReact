@@ -11,7 +11,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import Controls from "./components/Controls/Controls";
 import FullScreenControls from "./components/Controls/FullScreenControls"
 import mapConfig from "./config.json";
-import CommentsDrawer from './components/Comments/Comments';
+import {CommentsDrawer} from './components/Comments/Comments';
 import Button from '@mui/material/Button';
 
 let styles = {
@@ -32,6 +32,7 @@ const markersLonLat = [mapConfig.kansasCityLonLat, mapConfig.blueSpringsLonLat];
 
 const App = () => {
   const [center, setCenter] = useState(mapConfig.center);
+  console.log(center)
   const [zoom, setZoom] = useState(9);
   const [showLayer1, setShowLayer1] = useState(true);
   const [showLayer2, setShowLayer2] = useState(true);
@@ -40,16 +41,20 @@ const App = () => {
   const [state, setState] = useState(false);
   const [comments, setComments] = useState([
     {
+        id: 0,
         title: 'title',
         content: "lorem ipsum",
         author: 'Jhon Doe',
+        vector: 0,
         selected: false,
         edit: false,
     },
     {
+        id: 1,
         title: 'title',
         content: "lorem ipsum",
         author: 'Jhon Doe',
+        vector: 1,
         selected: false,
         edit: false,
     }
@@ -58,10 +63,22 @@ const App = () => {
   return (
     <div className="container">
       <div className='commentsBlock'>
-        <CommentsDrawer comments={comments} updateComments={setComments} />
+        <CommentsDrawer 
+          comments={comments} 
+          updateComments={setComments} 
+          vectors={vectors} 
+          updateVectors={setVectors} />
       </div>
       <div className='mapBlock'>
-        <Map center={fromLonLat(center)} zoom={zoom} setVectors={setVectors} vectors={vectors}>
+        <Map 
+          center={center} 
+          updateCenter={setCenter} 
+          zoom={zoom} 
+          setVectors={setVectors} 
+          vectors={vectors}
+          comments={comments}
+          updateComments={setComments}
+        >
           <Layers>
             { switchLayer && 
                 <TileLayer

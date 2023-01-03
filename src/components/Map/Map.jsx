@@ -2,8 +2,10 @@ import React, { useRef, useState, useEffect } from "react"
 import "./map.css";
 import MapContext from "./MapContext";
 import * as ol from "ol";
+import { fromLonLat } from "ol/proj";
+import { openSelectCommentFromVector } from "../Comments/Comments";
 
-const Map = ({ children, zoom, center, setVectors, vectors }) => {
+const Map = ({ children, zoom, center, setVectors, vectors, updateCenter, comments, updateComments }) => {
   const mapRef = useRef();
   const [map, setMap] = useState(null);
   // on component mount
@@ -35,10 +37,10 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
               "coordinates": [
                 [
                   [
-                    [pos[0] - 0.5, pos[1] - 0.5],
-                    [pos[0] + 0.5, pos[1] - 0.5],
-                    [pos[0] + 0.5, pos[1] + 0.5],
-                    [pos[0] - 0.5, pos[1] + 0.5]
+                    [pos[0] - 0.0005, pos[1] - 0.0005],
+                    [pos[0] + 0.0005, pos[1] - 0.0005],
+                    [pos[0] + 0.0005, pos[1] + 0.0005],
+                    [pos[0] - 0.0005, pos[1] + 0.0005]
                   ]
                 ]
               ]
@@ -49,12 +51,23 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
     };
 
     const handleMapClick = (e) => {
-      
-      
-      setVectors([
-        ...vectors,
-        newVector(e.coordinate)
-      ])
+      const selectedObject = mapObject.forEachFeatureAtPixel((e.pixel), (feature, layer) => {
+        return layer;
+      })
+      if (selectedObject != undefined) {
+        console.log(selectedObject)
+        console.log(comments);
+        openSelectCommentFromVector(0, comments, updateComments)
+      }
+      else {
+        console.log(e.coordinate);
+        console.log(center)
+        setVectors([
+          ...vectors,
+          newVector(e.coordinate)
+        ])
+        updateCenter(e.coordinate);
+      }
     }
 
     mapObject.on('click', (e) => handleMapClick(e))
@@ -78,7 +91,6 @@ const Map = ({ children, zoom, center, setVectors, vectors }) => {
       <div ref={mapRef} className="ol-map">
         {children}
       </div>
-      
     </MapContext.Provider>
   )
 }

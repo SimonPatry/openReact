@@ -8,14 +8,32 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
-export default function CommentsDrawer({ comments, updateComments }) {
+
+
+const openSelectCommentFromVector = ({vector, comments, updateComments}) => {
+    console.log(comments);
+    let tmpArr = [...comments];
+    comments.map((comment, key) => {
+        if (comment.vector === vector) {
+            tmpArr[key] = {
+                ...tmpArr[key],
+                selected: true
+            }
+            updateComments([...tmpArr])
+        }
+    })
+}
+
+const CommentsDrawer = ({ comments, updateComments }) => {
     
     const [state, setState] = useState(false);
     const [edit, setEdit] = useState(false);
     const [newComment, setNewComment] = useState({
+            id: comments[comments.length-1].id++,
             title: 'title',
             content: "lorem ipsum",
             author: 'Jhon Doe',
+            vector: undefined,
             selected: false,
             edit: false,
     });
@@ -63,6 +81,7 @@ export default function CommentsDrawer({ comments, updateComments }) {
                 {"<"}
             </Button>
             <Drawer
+                sx={{left: "60vw"}}
                 hideBackdrop={true}
                 anchor={'right'}
                 open={state}
@@ -164,4 +183,4 @@ export default function CommentsDrawer({ comments, updateComments }) {
     );
 }
 
-/*  */
+export { CommentsDrawer, openSelectCommentFromVector } 
