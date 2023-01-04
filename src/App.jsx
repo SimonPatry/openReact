@@ -13,6 +13,8 @@ import FullScreenControls from "./components/Controls/FullScreenControls"
 import mapConfig from "./config.json";
 import {CommentsDrawer} from './components/Comments/Comments';
 import Button from '@mui/material/Button';
+import NavBar from './components/NavBar/NavBar'
+import getVectors from './components/Vectors/Vectors';
 
 let styles = {
   'MultiPolygon': new Style({
@@ -26,13 +28,8 @@ let styles = {
   }),
 };
 
-const geojsonObject = mapConfig.geojsonObject;
-const geojsonObject2 = mapConfig.geojsonObject2;
-const markersLonLat = [mapConfig.kansasCityLonLat, mapConfig.blueSpringsLonLat];
-
 const App = () => {
   const [center, setCenter] = useState(mapConfig.center);
-  console.log(center)
   const [zoom, setZoom] = useState(9);
   const [showLayer1, setShowLayer1] = useState(true);
   const [showLayer2, setShowLayer2] = useState(true);
@@ -60,8 +57,29 @@ const App = () => {
     }
   ]);
 
+  useEffect(() => {
+
+    const fetchVectors = async () => {
+      const fetchedVectors = await getVectors();
+      setVectors(fetchedVectors);
+    };
+  
+    //fetchVectors();
+    vectors.push({
+      ...mapConfig.geojsonObject,
+      vectorId: 0,
+    })
+    vectors.push({
+      ...mapConfig.geojsonObject2,
+      vectorId: 1,
+    })
+    
+  }, []);
+
   return (
     <div className="container">
+      
+      <NavBar />
       <div className='commentsBlock'>
         <CommentsDrawer 
           comments={comments} 
@@ -95,7 +113,7 @@ const App = () => {
             }
             { showLayer1 && (
               <VectorLayer
-                source={vector({ features: new GeoJSON().readFeatures(geojsonObject, { featureProjection: get('EPSG:3857') }) })}
+                source={vector({ features: new GeoJSON().readFeatures(mapConfig.geojsonObject, { featureProjection: get('EPSG:3857') }) })}
                 style={styles.MultiPolygon}
               />
             )}
@@ -108,7 +126,7 @@ const App = () => {
             {showLayer2 && (
               
               <VectorLayer
-                source={vector({ features: new GeoJSON().readFeatures(geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
+                source={vector({ features: new GeoJSON().readFeatures(mapConfig.geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
                 style={styles.MultiPolygon}
               />
             )}
