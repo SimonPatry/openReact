@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { useContext } from 'react';
+import AppContext from '../../context/AppContext';
 
 
 
@@ -25,8 +27,7 @@ const openSelectCommentFromVector = ({vector, comments, updateComments}) => {
 }
 
 const CommentsDrawer = ({ comments, updateComments }) => {
-    
-    const [state, setState] = useState(false);
+    const {drawer, setDrawer, newVctr, setNewVctr} = useContext(AppContext);
     const [edit, setEdit] = useState(false);
     const [newComment, setNewComment] = useState({
             id: comments[comments.length-1].id++,
@@ -71,12 +72,14 @@ const CommentsDrawer = ({ comments, updateComments }) => {
             newComment
         ]);
         setEdit(true);
+        setNewVctr(false);
     }
 
     return (
         <>
             <Button className="toggleBtn" onClick={() => {
-                setState(state ? false : true)
+                setDrawer(drawer ? false : true)
+                setNewVctr(false);
             }}>
                 {"<"}
             </Button>
@@ -84,9 +87,9 @@ const CommentsDrawer = ({ comments, updateComments }) => {
                 sx={{left: "60vw"}}
                 hideBackdrop={true}
                 anchor={'right'}
-                open={state}
+                open={drawer}
                 onClose= {() => {
-                    setState(state ? false : true)
+                    setDrawer(drawer ? false : true)
                 }}
             >
                 <Box                
@@ -96,85 +99,89 @@ const CommentsDrawer = ({ comments, updateComments }) => {
                 >
                     <Button className="toggleBtnIn"
                         onClick={() => {
-                            setState(state ? false : true);
+                            setDrawer(drawer ? false : true);
                         }}
                     >
                         {">"}
                     </Button>
                     <div>
-                        <div className='comments'>
-                            <h2>Commentaires</h2>
-                            {comments.map((comment, key) => {
-                                return (comment.edit == false ?
-                                <div key={key}
-                                    className={`commentBlock ${comment.selected ? 'selectedComment' : 'comment'}`}
-                                    onClick={() => {
-                                    comment.selected = comment.selected ? false : true;
-                                    setEdit(true);
-                                }}
-                                >
-                                    <div className='(commentContent'>
-                                        <p>{comment.title}</p>
-                                        <p>{comment.content}</p>
-                                    </div>
-                                    <Button
+                        {!newVctr &&
+                            <div className='comments'>
+                                <h2>Commentaires</h2>
+                                {comments.map((comment, key) => {
+                                    return (comment.edit == false ?
+                                    <div key={key}
+                                        className={`commentBlock ${comment.selected ? 'selectedComment' : 'comment'}`}
                                         onClick={() => {
-                                            comment.edit = true;
-                                            setEdit(true);
-                                        }}
+                                        comment.selected = comment.selected ? false : true;
+                                        setEdit(true);
+                                    }}
                                     >
-                                        <FontAwesomeIcon icon={faPenToSquare} />
-                                    </Button>
-                                </div>
-                                :
-                                <div key={key}>
-                                    <div className='commentContent'>
-                                        <TextField
-                                            id="title"
-                                            label="title"
-                                            onChange={(e) => handleChange(e, key)}
-                                            value={comment.title}
-                                        />
-                                        <TextField
-                                            id="content"
-                                            label="content"
-                                            onChange={(e) => handleChange(e, key)}
-                                            value={comment.content}
-                                        />
+                                        <div className='(commentContent'>
+                                            <p>{comment.title}</p>
+                                            <p>{comment.content}</p>
+                                        </div>
+                                        <Button
+                                            onClick={() => {
+                                                comment.edit = true;
+                                                setEdit(true);
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faPenToSquare} />
+                                        </Button>
                                     </div>
-                                    <Button
-                                        onClick={() => {
-                                            comment.edit = false;
-                                            setEdit(true);
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faFloppyDisk} />
-                                    </Button>
-                                </div>);
-                            })}
-                        </div>
-                        <div className='addComment'>
-                            <h2>Ajouter un commentaire:</h2>
-                            <div className='commentContent'>
-                                <TextField
-                                    id="title"
-                                    label="title"
-                                    onChange={(e) => handleTitleChange(e)}
-                                />
-                                <TextField
-                                    id="content"
-                                    label="content"
-                                    onChange={(e) => handleContentChange(e)}
-                                />
+                                    :
+                                    <div key={key}>
+                                        <div className='commentContent'>
+                                            <TextField
+                                                id="title"
+                                                label="title"
+                                                onChange={(e) => handleChange(e, key)}
+                                                value={comment.title}
+                                            />
+                                            <TextField
+                                                id="content"
+                                                label="content"
+                                                onChange={(e) => handleChange(e, key)}
+                                                value={comment.content}
+                                            />
+                                        </div>
+                                        <Button
+                                            onClick={() => {
+                                                comment.edit = false;
+                                                setEdit(true);
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faFloppyDisk} />
+                                        </Button>
+                                    </div>);
+                                })}
                             </div>
-                            <Button
-                                onClick={(e) => {
-                                    addComment(e);
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faPaperPlane} />
-                            </Button>
-                        </div>
+                        }
+                        {newVctr &&
+                            <div className='addComment'>
+                                <h2>Ajouter un commentaire:</h2>
+                                <div className='commentContent'>
+                                    <TextField
+                                        id="title"
+                                        label="title"
+                                        onChange={(e) => handleTitleChange(e)}
+                                    />
+                                    <TextField
+                                        id="content"
+                                        label="content"
+                                        onChange={(e) => handleContentChange(e)}
+                                    />
+                                </div>
+                                <Button
+                                    onClick={(e) => {
+                                        addComment(e);
+                                    }}
+                                >
+                                    <FontAwesomeIcon icon={faPaperPlane} />
+                                </Button>
+                            </div>
+                        }
                     </div>
                     
                 </Box>

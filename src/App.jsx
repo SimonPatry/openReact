@@ -15,9 +15,19 @@ import {CommentsDrawer} from './components/Comments/Comments';
 import Button from '@mui/material/Button';
 import NavBar from './components/NavBar/NavBar'
 import getVectors from './components/Vectors/Vectors';
+import AppContext from './context/AppContext';
 
 let styles = {
   'MultiPolygon': new Style({
+    stroke: new Stroke({
+      color: 'blue',
+      width: 1,
+    }),
+    fill: new Fill({
+      color: 'rgba(0, 0, 255, 0.1)',
+    }),
+  }),
+  'MultiPolygonSelected': new Style({
     stroke: new Stroke({
       color: 'blue',
       width: 1,
@@ -31,11 +41,12 @@ let styles = {
 const App = () => {
   const [center, setCenter] = useState(mapConfig.center);
   const [zoom, setZoom] = useState(9);
+  const [drawer, setDrawer] = useState(false);
   const [showLayer1, setShowLayer1] = useState(true);
   const [showLayer2, setShowLayer2] = useState(true);
   const [switchLayer, setSwitchLayer] = useState(true);
   const [vectors, setVectors] = useState([]);
-  const [state, setState] = useState(false);
+  const [newVctr, setNewVctr] = useState(false);
   const [comments, setComments] = useState([
     {
         id: 0,
@@ -57,114 +68,103 @@ const App = () => {
     }
   ]);
 
-  useEffect(() => {
+  const fetchVectors = async () => {
+    console.log("request vectors")
+    return await getVectors();
+  };
 
-    const fetchVectors = async () => {
-      const fetchedVectors = await getVectors();
+  useEffect(() => {
+    fetchVectors().then((fetchedVectors) => {
+      console.log("importing from db")
       setVectors(fetchedVectors);
-    };
-  
-    //fetchVectors();
-    vectors.push({
-      ...mapConfig.geojsonObject,
-      vectorId: 0,
     })
-    vectors.push({
-      ...mapConfig.geojsonObject2,
-      vectorId: 1,
-    })
-    
+
   }, []);
+  
+const providerData = {
+  vectors,
+  setVectors,
+  drawer,
+  setDrawer,
+  newVctr,
+  setNewVctr
+}
 
   return (
-    <div className="container">
-      
-      <NavBar />
-      <div className='commentsBlock'>
-        <CommentsDrawer 
-          comments={comments} 
-          updateComments={setComments} 
-          vectors={vectors} 
-          updateVectors={setVectors} />
-      </div>
-      <div className='mapBlock'>
-        <Map 
-          center={center} 
-          updateCenter={setCenter} 
-          zoom={zoom} 
-          setVectors={setVectors} 
-          vectors={vectors}
-          comments={comments}
-          updateComments={setComments}
-        >
-          <Layers>
-            { switchLayer && 
-                <TileLayer
-                source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
-                )}
-                zIndex={0}
-              />
-            }
-            { !switchLayer && 
-                <TileLayer
-                source={osm()}
-                zIndex={0}
-              />
-            }
-            { showLayer1 && (
-              <VectorLayer
-                source={vector({ features: new GeoJSON().readFeatures(mapConfig.geojsonObject, { featureProjection: get('EPSG:3857') }) })}
-                style={styles.MultiPolygon}
-              />
-            )}
-            { vectors.length >= 3 &&
-              <VectorLayer 
-                source={vector({ features: new GeoJSON().readFeatures(vectors[2], { featureProjection: get('EPSG:3857') }) })}
-                  style={styles.MultiPolygon}
-              />
-            }
-            {showLayer2 && (
-              
-              <VectorLayer
-                source={vector({ features: new GeoJSON().readFeatures(mapConfig.geojsonObject2, { featureProjection: get('EPSG:3857') }) })}
-                style={styles.MultiPolygon}
-              />
-            )}
-          </Layers>
-          <Controls>
-            <FullScreenControls />
-          </Controls>
-        </Map>
-      </div>
-      <div>
-        <input
-          type="checkbox"
-          checked={showLayer1}
-          onChange={event => setShowLayer1(event.target.checked)}
-        /> Johnson County
-      </div>
-      <div>
-        <input
-          type="checkbox"
-          checked={showLayer2}
-          onChange={event => setShowLayer2(event.target.checked)}
-        /> Wyandotte County</div>
+    <AppContext.Provider value={providerData}>
+      <div className="container">
+        <NavBar />
+        <div className='commentsBlock'>
+          <CommentsDrawer 
+            comments={comments} 
+            updateComments={setComments} 
+            vectors={vectors} 
+            updateVectors={setVectors} />
+        </div>
+        <div className='mapBlock'>
+          <Map 
+            center={center} 
+            updateCenter={setCenter} 
+            zoom={zoom} 
+            
+            comments={comments}
+            updateComments={setComments}
+          >
+            <Layers>
+              { switchLayer && 
+                  <TileLayer
+                  source={xyz({url:"https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=286831b17c1c4850a525905a5f4ba171"}
+                  )}
+                  zIndex={0}
+                />
+              }
+              { !switchLayer && 
+                  <TileLayer
+                  source={osm()}
+                  zIndex={0}
+                />
+              }
+              { vectors.length > 0 && (
+                vectors.map((vtr) => {
+                  console.log(vtr)
+                  return (
+                    <VectorLayer key={vtr.vectorId}
+                      source={vector({ 
+                      features: new GeoJSON().readFeatures(vtr.geo, { featureProjection: get('EPSG:3857') }) 
+                    })}
+                      style={styles.MultiPolygon}
+                    />
+                  );
+                })
+              )}
+            </Layers>
+            <Controls>
+              <FullScreenControls />
+            </Controls>
+          </Map>
+        </div>
         <div>
           <input
             type="checkbox"
-            checked={switchLayer}
-            onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? "Normal vue" : " Thermal vue"}
-      </div>
-      {
-        vectors.length >= 3 &&
+            checked={showLayer1}
+            onChange={event => setShowLayer1(event.target.checked)}
+          /> Johnson County
+        </div>
         <div>
-        <input
-          type="checkbox"
-          checked={true}
-          onChange={event => setSwitchLayer(event.target.checked)} /> 3 vecteurs
-          </div>
-      }
-    </div>
+          <input
+            type="checkbox"
+            checked={showLayer2}
+            onChange={event => setShowLayer2(event.target.checked)}
+          /> Wyandotte County</div>
+          <div>
+            <input
+              type="checkbox"
+              checked={switchLayer}
+              onChange={event => setSwitchLayer(event.target.checked)} />{switchLayer ? "Normal vue" : " Thermal vue"}
+        </div>
+      </div>
+    </AppContext.Provider>
+    
   );
 }
 export default App;
