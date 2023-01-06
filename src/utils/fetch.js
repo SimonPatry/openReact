@@ -26,7 +26,6 @@ export const fetchPost = async(url, body) => {
         },
         body: JSON.stringify(body)
     }
-    console.log(url)
     try{
         const fetchResponse = await fetch(url, postRequest);
         const data = await fetchResponse.json();

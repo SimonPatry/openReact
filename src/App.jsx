@@ -14,20 +14,11 @@ import mapConfig from "./config.json";
 import {CommentsDrawer} from './components/Comments/Comments';
 import Button from '@mui/material/Button';
 import NavBar from './components/NavBar/NavBar'
-import getVectors from './components/Vectors/Vectors';
+import {getVectors} from './components/Vectors/Vectors';
 import AppContext from './context/AppContext';
 
 let styles = {
   'MultiPolygon': new Style({
-    stroke: new Stroke({
-      color: 'blue',
-      width: 1,
-    }),
-    fill: new Fill({
-      color: 'rgba(0, 0, 255, 0.1)',
-    }),
-  }),
-  'MultiPolygonSelected': new Style({
     stroke: new Stroke({
       color: 'blue',
       width: 1,
@@ -126,7 +117,6 @@ const providerData = {
               }
               { vectors.length > 0 && (
                 vectors.map((vtr) => {
-                  console.log(vtr)
                   return (
                     <VectorLayer key={vtr.vectorId}
                       source={vector({ 
