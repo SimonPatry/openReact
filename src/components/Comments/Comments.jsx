@@ -9,32 +9,21 @@ import { faFloppyDisk } from '@fortawesome/free-solid-svg-icons';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { useContext } from 'react';
 import AppContext from '../../context/AppContext';
+import {createNewVector } from '../Vectors/Vectors'
 
 
-
-const openSelectCommentFromVector = ({vector, comments, updateComments}) => {
-    console.log(comments);
-    let tmpArr = [...comments];
-    comments.map((comment, key) => {
-        if (comment.vector === vector) {
-            tmpArr[key] = {
-                ...tmpArr[key],
-                selected: true
-            }
-            updateComments([...tmpArr])
-        }
-    })
+const openSelectCommentFromVector = () => {
+    
 }
 
-const CommentsDrawer = ({ comments, updateComments }) => {
-    const {drawer, setDrawer, newVctr, setNewVctr} = useContext(AppContext);
+const CommentsDrawer = () => {
+    const {drawer, setDrawer, newVctr, setNewVctr, vectors, setVectors} = useContext(AppContext);
+
+    const [errorMessage, setErrorMessage] = useState('');
     const [edit, setEdit] = useState(false);
     const [newComment, setNewComment] = useState({
-            id: comments[comments.length-1].id++,
             title: 'title',
             content: "lorem ipsum",
-            author: 'Jhon Doe',
-            vector: undefined,
             selected: false,
             edit: false,
     });
@@ -44,35 +33,35 @@ const CommentsDrawer = ({ comments, updateComments }) => {
     }, [edit]);
 
     const handleChange = (e, key) => {
-        const tmpArr = [...comments];
-        tmpArr[key] = {
-            ...tmpArr[key],
+        const tmpArr = [...vectors];
+        console.log(tmpArr)
+        tmpArr[key].comment = {
+            ...tmpArr[key].comment,
             [e.target.id]: e.target.value
         }
-        updateComments([...tmpArr]);
+        return [...tmpArr]
     }
 
     const handleTitleChange = (e) => {
-        setNewComment({
-            ...newComment,
-            title: e.target.value
-        })
+        const vec = vectors[vectors.length -1]
+        vec.comment.title = e.target.value;
     }
 
     const handleContentChange = (e) => {
-        setNewComment({
-            ...newComment,
-            content: e.target.value
-        })
+        const vec = vectors[vectors.length -1]
+        vec.comment.content = e.target.value;
     }
 
     const addComment = () => {
-        updateComments([
-            ...comments,
-            newComment
-        ]);
-        setEdit(true);
-        setNewVctr(false);
+        if (vectors[vectors.length-1].comment.title === '' 
+        || vectors[vectors.length-1].comment.content === '')
+            setErrorMessage("Title and Content can't be empty for comments !");
+        else {
+            createNewVector(vectors);
+            setErrorMessage('');
+            setEdit(true);
+            setNewVctr(false);
+        }
     }
 
     return (
@@ -108,22 +97,23 @@ const CommentsDrawer = ({ comments, updateComments }) => {
                         {!newVctr &&
                             <div className='comments'>
                                 <h2>Commentaires</h2>
-                                {comments.map((comment, key) => {
-                                    return (comment.edit == false ?
+                                {vectors.length > 0 && 
+                                vectors.map((vector, key) => {
+                                    return (vector.comment.edit == false ?
                                     <div key={key}
-                                        className={`commentBlock ${comment.selected ? 'selectedComment' : 'comment'}`}
+                                        className={`commentBlock ${vector.comment.selected ? 'selectedComment' : 'comment'}`}
                                         onClick={() => {
-                                        comment.selected = comment.selected ? false : true;
+                                        vector.comment.vector.selected = vector.comment.selected ? false : true;
                                         setEdit(true);
                                     }}
                                     >
                                         <div className='(commentContent'>
-                                            <p>{comment.title}</p>
-                                            <p>{comment.content}</p>
+                                            <p>{vector.comment.title}</p>
+                                            <p>{vector.comment.content}</p>
                                         </div>
                                         <Button
                                             onClick={() => {
-                                                comment.edit = true;
+                                                vector.comment.edit = true;
                                                 setEdit(true);
                                             }}
                                         >
@@ -136,19 +126,25 @@ const CommentsDrawer = ({ comments, updateComments }) => {
                                             <TextField
                                                 id="title"
                                                 label="title"
-                                                onChange={(e) => handleChange(e, key)}
-                                                value={comment.title}
+                                                onChange={(e) => {
+                                                    const vecs = handleChange(e, key);
+                                                    setVectors(vecs);
+                                                }}
+                                                value={vector.comment.title}
                                             />
                                             <TextField
                                                 id="content"
                                                 label="content"
-                                                onChange={(e) => handleChange(e, key)}
-                                                value={comment.content}
+                                                onChange={(e) => {
+                                                    const vecs = handleChange(e, key);
+                                                    setVectors(vecs);
+                                                }}
+                                                value={vector.comment.content}
                                             />
                                         </div>
                                         <Button
                                             onClick={() => {
-                                                comment.edit = false;
+                                                vector.comment.edit = false;
                                                 setEdit(true);
                                             }}
                                         >
@@ -172,6 +168,9 @@ const CommentsDrawer = ({ comments, updateComments }) => {
                                         label="content"
                                         onChange={(e) => handleContentChange(e)}
                                     />
+                                    {errorMessage != '' &&
+                                        <p>{ errorMessage }</p>
+                                    }
                                 </div>
                                 <Button
                                     onClick={(e) => {

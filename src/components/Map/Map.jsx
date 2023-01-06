@@ -2,12 +2,11 @@ import React, { useRef, useState, useEffect, useContext } from "react"
 import "./map.css";
 import MapContext from "./MapContext";
 import * as ol from "ol";
-import {fetchPost} from "../../utils/fetch";
-import { openSelectCommentFromVector } from "../Comments/Comments";
 import AppContext from "../../context/AppContext";
-import { addNewVector, newVector} from '../Vectors/Vectors';
+import { newVector} from '../Vectors/Vectors';
+import { openSelectCommentFromVector } from "../Comments/Comments";
 
-const Map = ({ children, zoom, center, updateCenter, comments, updateComments }) => {
+const Map = ({ children, zoom, center, updateCenter, updateVectors}) => {
   
   const { vectors, setVectors, setDrawer, setNewVctr } = useContext(AppContext);
 
@@ -27,19 +26,34 @@ const Map = ({ children, zoom, center, updateCenter, comments, updateComments })
     setMap(mapObject);
 
     const handleMapClick = (e) => {
+
+      // Checking if click was on an existing vector
+      console.log("onclick")
+      console.log(vectors)
       const selectedObject = mapObject.forEachFeatureAtPixel((e.pixel), (feature, layer) => {
         return layer;
       })
+
+      // If click is on a vector open link to comment
       if (selectedObject !== undefined) {
         console.log(selectedObject)
-        console.log(comments);
-        openSelectCommentFromVector(0, comments, updateComments)
+        
+        // openSelectCommentFromVector(0, comments, updateComments)
       }
+      //else creates a new vector
       else {
-        if (vectors.length >0)
-          console.log(vectors[vectors.length -1].vectorId)
+        // flag telling react we are creating a new vector.
+        // means vec is created and ushed in an array but is valid and send to db only when comment is wrote and linked to it else it's DESTROYED
+
         setNewVctr(true);
-        addNewVector(e.coordinate, vectors, setVectors);
+
+        const vec = newVector(e.coordinate, vectors)
+        updateVectors([
+          ...vectors,
+          vec
+        ]);
+        console.log("vector pushed");
+        console.log(vectors)
         updateCenter(e.coordinate);
       }
       setDrawer(true);

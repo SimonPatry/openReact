@@ -12,7 +12,6 @@ import Controls from "./components/Controls/Controls";
 import FullScreenControls from "./components/Controls/FullScreenControls"
 import mapConfig from "./config.json";
 import {CommentsDrawer} from './components/Comments/Comments';
-import Button from '@mui/material/Button';
 import NavBar from './components/NavBar/NavBar'
 import {getVectors} from './components/Vectors/Vectors';
 import AppContext from './context/AppContext';
@@ -30,34 +29,12 @@ let styles = {
 };
 
 const App = () => {
-  const [center, setCenter] = useState(mapConfig.center);
-  const [zoom, setZoom] = useState(9);
-  const [drawer, setDrawer] = useState(false);
-  const [showLayer1, setShowLayer1] = useState(true);
-  const [showLayer2, setShowLayer2] = useState(true);
-  const [switchLayer, setSwitchLayer] = useState(true);
-  const [vectors, setVectors] = useState([]);
-  const [newVctr, setNewVctr] = useState(false);
-  const [comments, setComments] = useState([
-    {
-        id: 0,
-        title: 'title',
-        content: "lorem ipsum",
-        author: 'Jhon Doe',
-        vector: 0,
-        selected: false,
-        edit: false,
-    },
-    {
-        id: 1,
-        title: 'title',
-        content: "lorem ipsum",
-        author: 'Jhon Doe',
-        vector: 1,
-        selected: false,
-        edit: false,
-    }
-  ]);
+  const [center, setCenter] = useState(mapConfig.center); // open map on this coordinates
+  const [zoom, setZoom] = useState(9); // zoom level init
+  const [drawer, setDrawer] = useState(false); // comment's drawer state (open/close => true/false)
+  const [switchLayer, setSwitchLayer] = useState(true); //toggle for normal vue and thermal vue of the park
+  const [vectors, setVectors] = useState([]); // list of vectors/problems 
+  const [newVctr, setNewVctr] = useState(false); // A vector's creation contain multiple steps , to ensure the creation is or isn't ongoing this var is set to true or false, allowing us to delete or send the new vector depending if the creation steps are interrupted or not
 
   const fetchVectors = async () => {
     console.log("request vectors")
@@ -71,35 +48,34 @@ const App = () => {
     })
 
   }, []);
-  
-const providerData = {
-  vectors,
-  setVectors,
-  drawer,
-  setDrawer,
-  newVctr,
-  setNewVctr
-}
+
+  useEffect(() => {
+    console.log("vectors modified");
+  },[vectors])
+
+  // using provider to avoid state lifting on vectors and drawer allowinf us to control those elements from here 
+  const providerData = {
+    vectors,
+    setVectors,
+    drawer,
+    setDrawer,
+    newVctr,
+    setNewVctr
+  }
 
   return (
     <AppContext.Provider value={providerData}>
       <div className="container">
         <NavBar />
         <div className='commentsBlock'>
-          <CommentsDrawer 
-            comments={comments} 
-            updateComments={setComments} 
-            vectors={vectors} 
-            updateVectors={setVectors} />
+          <CommentsDrawer />
         </div>
         <div className='mapBlock'>
           <Map 
             center={center} 
             updateCenter={setCenter} 
-            zoom={zoom} 
-            
-            comments={comments}
-            updateComments={setComments}
+            zoom={zoom}
+            updateVectors={setVectors}
           >
             <Layers>
               { switchLayer && 
@@ -115,15 +91,25 @@ const providerData = {
                   zIndex={0}
                 />
               }
+              <div>
+                <VectorLayer
+                  source={vector({ 
+                  features: new GeoJSON().readFeatures(mapConfig.geojsonObject, { featureProjection: get('EPSG:3857') }) 
+                })}
+                  style={styles.MultiPolygon}
+                />
+            </div>
               { vectors.length > 0 && (
                 vectors.map((vtr) => {
                   return (
-                    <VectorLayer key={vtr.vectorId}
-                      source={vector({ 
-                      features: new GeoJSON().readFeatures(vtr.geo, { featureProjection: get('EPSG:3857') }) 
-                    })}
-                      style={styles.MultiPolygon}
-                    />
+                    <div key={vtr.vectorId}>
+                        <VectorLayer
+                          source={vector({ 
+                          features: new GeoJSON().readFeatures(vtr.geo, { featureProjection: get('EPSG:3857') }) 
+                        })}
+                          style={styles.MultiPolygon}
+                        />
+                    </div>
                   );
                 })
               )}
@@ -133,19 +119,6 @@ const providerData = {
             </Controls>
           </Map>
         </div>
-        <div>
-          <input
-            type="checkbox"
-            checked={showLayer1}
-            onChange={event => setShowLayer1(event.target.checked)}
-          /> Johnson County
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            checked={showLayer2}
-            onChange={event => setShowLayer2(event.target.checked)}
-          /> Wyandotte County</div>
           <div>
             <input
               type="checkbox"

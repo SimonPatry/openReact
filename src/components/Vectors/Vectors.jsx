@@ -1,5 +1,8 @@
 import axios from 'axios';
+import { useContext } from 'react';
+import AppContext from '../../context/AppContext';
 import { fetchPost } from '../../utils/fetch';
+import { toLonLat } from 'ol/proj';
 
 /* newVector
   Return an object vector with datas for vectorLayer 
@@ -11,11 +14,18 @@ export const newVector = (pos, vectors) => {
       "type": "Feature",
       "geometry": {
         "type": "Polygon",
+        "properties": {
+          "kind": "county",
+          "name": "Wyandotte",
+          "state": "KS"
+        },
         "coordinates": [
-          [pos[0] - 0.0005, pos[1] - 0.0005],
-          [pos[0] + 0.0005, pos[1] - 0.0005],
-          [pos[0] + 0.0005, pos[1] + 0.0005],
-          [pos[0] - 0.0005, pos[1] + 0.0005]
+          [
+            toLonLat([pos[0] - 0.0005, pos[1] - 0.0005]),
+            toLonLat([pos[0] + 0.0005, pos[1] - 0.0005]),
+            toLonLat([pos[0] + 0.0005, pos[1] + 0.0005]),
+            toLonLat([pos[0] - 0.0005, pos[1] + 0.0005])
+          ]
         ]
       }
     }
@@ -28,22 +38,17 @@ export const newVector = (pos, vectors) => {
       - comments is an array of objects comment containings datas from each comments
       - geoJSON object containing a type:string and features:array see the geoJSON doc for specific features content
 */
-  const id = vectors.length ? vectors[vectors.length -1].vectorsId + 1 : 0;
-
-  // TESTS FOR INDEX
-  
-  console.log("vectors.length: " + vectors.length);
-  if (vectors.length > 0) {
-    console.log("last vector ID: " + vectors[0].vectorsId);
-    console.log("vector: " + vectors[vectors.legnth-1])
-  }
-  console.log("id: " + id)
-
+  const id = vectors.length ? vectors[vectors.length -1].vectorId + 1 : 0;
 
   return {
     "vectorId": id,
     "show": true,
-    "comments": {},
+    "comment": {
+      title: '',
+      content: '',
+      edit: false,
+      selected: false,
+    },
     "geo" : {
       "type": "FeatureCollection",
       "features": fts,
@@ -51,17 +56,15 @@ export const newVector = (pos, vectors) => {
   };
 };
 
-
-export const addNewVector = async (coords, vectors, setVectors) => {
+/* Send new vector to back and db */
+export const createNewVector = async (vectors) => {
   const { REACT_APP_ADD_VECTOR } = process.env;
-  const vec = newVector(coords, vectors)
-  //vectors.push(vec);
-  setVectors([vec]);
-  console.log(vectors)
+
+  const vector = vectors[vectors.length -1];
   try{
-    await fetchPost(REACT_APP_ADD_VECTOR, vec)
+    await fetchPost(REACT_APP_ADD_VECTOR, vector)
       .then(res => {
-        console.log(res)
+        console.log(res);
       })
   } catch(e) {
     console.error(e);
