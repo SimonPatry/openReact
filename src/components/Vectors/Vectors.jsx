@@ -8,6 +8,7 @@ import { toLonLat } from 'ol/proj';
   Return an object vector with datas for vectorLayer 
 */
 export const newVector = (pos, vectors) => {
+  pos = toLonLat(pos);
 
   const fts = [
     {
@@ -21,10 +22,10 @@ export const newVector = (pos, vectors) => {
         },
         "coordinates": [
           [
-            toLonLat([pos[0] - 0.0005, pos[1] - 0.0005]),
-            toLonLat([pos[0] + 0.0005, pos[1] - 0.0005]),
-            toLonLat([pos[0] + 0.0005, pos[1] + 0.0005]),
-            toLonLat([pos[0] - 0.0005, pos[1] + 0.0005])
+            [pos[0] - 0.5 , pos[1] - 0.5 ],
+            [pos[0] + 0.5 , pos[1] - 0.5 ],
+            [pos[0] + 0.5 , pos[1] + 0.5 ],
+            [pos[0] - 0.5 , pos[1] + 0.5 ],
           ]
         ]
       }

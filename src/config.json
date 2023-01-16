@@ -5,11 +5,6 @@
         "features": [
           {
             "type": "Feature",
-            "properties": {
-              "kind": "county",
-              "name": "Wyandotte",
-              "state": "KS"
-            },
             "geometry": {
               "type": "Polygon",
               "coordinates": [

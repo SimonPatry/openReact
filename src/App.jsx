@@ -17,7 +17,7 @@ import {getVectors} from './components/Vectors/Vectors';
 import AppContext from './context/AppContext';
 
 let styles = {
-  'MultiPolygon': new Style({
+  'Polygon': new Style({
     stroke: new Stroke({
       color: 'blue',
       width: 1,
@@ -51,6 +51,7 @@ const App = () => {
 
   useEffect(() => {
     console.log("vectors modified");
+    console.log(vectors);
   },[vectors])
 
   // using provider to avoid state lifting on vectors and drawer allowinf us to control those elements from here 
@@ -91,14 +92,6 @@ const App = () => {
                   zIndex={0}
                 />
               }
-              <div>
-                <VectorLayer
-                  source={vector({ 
-                  features: new GeoJSON().readFeatures(mapConfig.geojsonObject, { featureProjection: get('EPSG:3857') }) 
-                })}
-                  style={styles.MultiPolygon}
-                />
-            </div>
               { vectors.length > 0 && (
                 vectors.map((vtr) => {
                   return (
@@ -107,7 +100,7 @@ const App = () => {
                           source={vector({ 
                           features: new GeoJSON().readFeatures(vtr.geo, { featureProjection: get('EPSG:3857') }) 
                         })}
-                          style={styles.MultiPolygon}
+                          style={styles.Polygon}
                         />
                     </div>
                   );
