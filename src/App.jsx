@@ -68,9 +68,7 @@ const App = () => {
     <AppContext.Provider value={providerData}>
       <div className="container">
         <NavBar />
-        <div className='commentsBlock'>
-          <CommentsDrawer />
-        </div>
+        
         <div className='mapBlock'>
           <Map 
             center={center} 
@@ -92,20 +90,7 @@ const App = () => {
                   zIndex={0}
                 />
               }
-              { vectors.length > 0 && (
-                vectors.map((vtr) => {
-                  return (
-                    <div key={vtr.vectorId}>
-                        <VectorLayer
-                          source={vector({ 
-                          features: new GeoJSON().readFeatures(vtr.geo, { featureProjection: get('EPSG:3857') }) 
-                        })}
-                          style={styles.Polygon}
-                        />
-                    </div>
-                  );
-                })
-              )}
+              
             </Layers>
             <Controls>
               <FullScreenControls />
